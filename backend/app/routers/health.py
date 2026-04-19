@@ -8,7 +8,7 @@ _startup_time = time.time()
 
 @router.get("/health")
 async def health_check(response: Response):
-    # Check Subsystems
+    # Database
     db_status = "ok"
     try:
         client = get_supabase()
@@ -16,12 +16,24 @@ async def health_check(response: Response):
             db_status = "error"
     except Exception:
         db_status = "error"
-        
-    sim_status = "ok" if simulator_engine and simulator_engine.graph else "error"
-    
-    # Check Prediction Service (Model Status)
-    from app.services.prediction_service import prediction_service
-    model_status = "ok" if prediction_service.model else "error"
+
+    # Simulator — call generate_snapshot() as a liveness probe
+    sim_status = "ok"
+    try:
+        snap = simulator_engine.generate_snapshot()
+        if not snap or not snap.zones:
+            sim_status = "error"
+    except Exception:
+        sim_status = "error"
+
+    # ML Model
+    model_status = "ok"
+    try:
+        from app.services.prediction_service import prediction_service
+        if not prediction_service.model:
+            model_status = "error"
+    except Exception:
+        model_status = "error"
 
     health = {
         "status": "ok",
@@ -32,11 +44,10 @@ async def health_check(response: Response):
             "prediction_model": model_status
         }
     }
-    
-    # If any subsystem is down, we still return 200 but with status: error
+
     if any(v == "error" for v in health["subsystems"].values()):
         health["status"] = "degraded"
-        
+
     return health
 
 @router.get("/api/metrics")
