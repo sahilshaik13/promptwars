@@ -21,17 +21,33 @@ function App() {
   const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
-    // onAuthStateChange fires INITIAL_SESSION on mount and SIGNED_IN when
-    // Supabase parses the #access_token hash from the OAuth redirect.
-    // We use it as the single source of truth — do NOT setLoading(false) in
-    // getSession(), because getSession() resolves before the hash is parsed.
+    // Safety timeout — if no auth event fires within 3s, unblock the UI
+    const safetyTimeout = setTimeout(() => setLoading(false), 3000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setLoading(false);  // Only mark ready once we have a definitive answer
+      (event, session) => {
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          setSession(session);
+          setLoading(false);
+          clearTimeout(safetyTimeout);
+        } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESH_FAILED') {
+          // Only sign out if we're not in the middle of an OAuth code exchange
+          const hasOAuthCode = window.location.search.includes('code=');
+          if (!hasOAuthCode) {
+            setSession(null);
+            setLoading(false);
+            clearTimeout(safetyTimeout);
+          }
+        } else if (event === 'TOKEN_REFRESHED') {
+          setSession(session);
+        }
       }
     );
-    return () => subscription.unsubscribe();
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
+    };
   }, []);
 
   // 📡 High-Speed WebSocket Real-time Stream
@@ -90,13 +106,16 @@ function App() {
     setRefreshTrigger(Date.now());
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    // Sign out any stale cached session first — prevents expired refresh tokens
+    // from firing 401 → SIGNED_OUT and overwriting the fresh SIGNED_IN event.
+    await supabase.auth.signOut({ scope: 'local' });
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin + '/',
-        queryParams: { access_type: 'offline', prompt: 'consent' },
-      }
+        queryParams: { access_type: 'offline', prompt: 'select_account' },
+      },
     });
   };
 
