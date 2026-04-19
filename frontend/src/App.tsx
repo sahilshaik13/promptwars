@@ -30,7 +30,7 @@ function App() {
           setSession(session);
           setLoading(false);
           clearTimeout(safetyTimeout);
-        } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESH_FAILED') {
+        } else if (event === 'SIGNED_OUT') {
           // Only sign out if we're not in the middle of an OAuth code exchange
           const hasOAuthCode = window.location.search.includes('code=');
           if (!hasOAuthCode) {

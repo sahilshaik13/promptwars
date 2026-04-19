@@ -12,8 +12,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // PKCE is more reliable for SPAs — uses ?code= query param instead of
-    // #access_token hash, avoiding stale hash detection race conditions.
-    flowType: 'pkce',
+    flowType: 'implicit',
   },
 });
