@@ -44,9 +44,12 @@ function App() {
     let reconnectTimeout: any = null;
 
     const connect = () => {
-      const apiUrl = getApiUrl();
-      const wsUrl = apiUrl.replace(/^http/, 'ws') + '/api/ws/venue';
+      const apiUrl = getApiUrl().trim().replace(/\/$/, ""); // Remove trailing slash
+      const wsUrl = apiUrl.startsWith('https') 
+        ? apiUrl.replace(/^https/, 'wss') + '/api/ws/venue'
+        : apiUrl.replace(/^http/, 'ws') + '/api/ws/venue';
       
+      console.log(`🔌 Attempting WebSocket connection to: ${wsUrl}`);
       socket = new WebSocket(wsUrl);
 
       socket.onopen = () => {

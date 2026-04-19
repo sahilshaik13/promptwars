@@ -18,6 +18,8 @@ class ZoneStatus(BaseModel):
     crowd_level: float
     status: str
     predicted_wait_time: float = 0.0 # From ML model
+    trend: str = "stable"            # rising, falling, stable
+    confidence: float = 1.0
     lat: float | None = None
     lng: float | None = None
 

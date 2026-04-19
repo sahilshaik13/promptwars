@@ -134,11 +134,12 @@ class SimulatorEngine:
             crowd_lvl = min(0.99, max(0.01, crowd_lvl + jitter))
             
             pred_wait = prediction_service.predict_wait_time(self.theme, self.situation, ztype, crowd_lvl)
+            trend = "rising" if crowd_lvl > 0.7 else "falling" if crowd_lvl < 0.2 else "stable"
             zones.append(ZoneStatus(
                 zone_id=zid, name=zname, type=ztype, capacity=cap,
                 current_count=int(cap * crowd_lvl), crowd_level=crowd_lvl,
                 status="critical" if crowd_lvl > 0.8 else "high" if crowd_lvl > 0.6 else "medium" if crowd_lvl > 0.35 else "low",
-                predicted_wait_time=pred_wait, lat=lat, lng=lng
+                predicted_wait_time=pred_wait, trend=trend, confidence=0.92, lat=lat, lng=lng
             ))
 
         particles = []

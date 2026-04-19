@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Zone, WaitTimePrediction } from '../types';
 import { getApiUrl } from '../utils/config';
 
@@ -7,43 +7,10 @@ interface WaitTimesSectionProps {
 }
 
 export const WaitTimesSection: React.FC<WaitTimesSectionProps> = ({ zones }) => {
-  const [predictions, setPredictions] = useState<Record<string, WaitTimePrediction>>({});
-  const [loading, setLoading] = useState(false);
+  // Sort zones by crowd level (descending: most congested at top)
+  const sortedZones = [...zones].sort((a, b) => b.crowd_level - a.crowd_level);
 
-  useEffect(() => {
-    if (!zones.length) return;
-    
-    let isSubscribed = true;
-    
-    const fetchPromises = async () => {
-      setLoading(true);
-      try {
-        const topZones = zones.slice(0, 8);
-        const results = await Promise.allSettled(
-          topZones.map(z => fetch(`${getApiUrl()}/api/predict/${z.zone_id}`).then(r => r.json()))
-        );
-        
-        if (isSubscribed) {
-          const newPreds: Record<string, WaitTimePrediction> = {};
-          results.forEach((res) => {
-            if (res.status === 'fulfilled') {
-              newPreds[res.value.zone_id] = res.value;
-            }
-          });
-          setPredictions(newPreds);
-        }
-      } catch (e) {
-        console.error("Failed to fetch wait times", e);
-      } finally {
-        if (isSubscribed) setLoading(false);
-      }
-    };
-    
-    fetchPromises();
-    return () => { isSubscribed = false; };
-  }, [zones]);
-
-  const getTrendIcon = (trend: string) => {
+  const getTrendIcon = (trend: string = 'stable') => {
     switch(trend) {
       case 'rising': return '↑';
       case 'falling': return '↓';
@@ -52,10 +19,10 @@ export const WaitTimesSection: React.FC<WaitTimesSectionProps> = ({ zones }) => 
   };
 
   const getStatusColor = (status: string) => {
-      if (status === 'low') return 'var(--low)';
-      if (status === 'medium') return 'var(--medium)';
-      if (status === 'high') return 'var(--high)';
-      return 'var(--critical)';
+    if (status === 'low') return 'var(--low)';
+    if (status === 'medium') return 'var(--medium)';
+    if (status === 'high') return 'var(--high)';
+    return 'var(--critical)';
   };
 
   return (
@@ -63,17 +30,25 @@ export const WaitTimesSection: React.FC<WaitTimesSectionProps> = ({ zones }) => 
       <div className="card-header">
         <h2 className="card-title" id="wait-title">Predicted Wait Times</h2>
       </div>
-      <div className="card-body">
-        <div id="wait-cards" className="wait-cards" aria-live="polite" aria-label="Wait time predictions per zone">
-          {(!zones.length || loading) ? (
-            <>
-              <div className="skeleton"></div><div className="skeleton"></div>
-              <div className="skeleton"></div><div className="skeleton"></div>
-            </>
+      <div className="card-body" style={{ padding: '0px' }}>
+        <div 
+          id="wait-cards" 
+          className="wait-cards" 
+          aria-live="polite" 
+          aria-label="Wait time predictions per zone"
+          style={{ 
+            maxHeight: '740px', 
+            overflowY: 'auto', 
+            padding: '16px 18px',
+            scrollBehavior: 'smooth'
+          }}
+        >
+          {!sortedZones.length ? (
+            <div className="skeleton" style={{ height: '200px' }}></div>
           ) : (
-            zones.slice(0, 8).map(zone => {
-              const p = predictions[zone.zone_id];
-              if (!p) return null;
+            sortedZones.map(zone => {
+              const waitMinutes = Math.round(zone.predicted_wait_time ?? 0);
+              const trend = zone.trend || 'stable';
               
               return (
                 <div key={zone.zone_id} className="wait-card">
@@ -82,9 +57,11 @@ export const WaitTimesSection: React.FC<WaitTimesSectionProps> = ({ zones }) => 
                     <div className="wait-type">{zone.type}</div>
                   </div>
                   <div className="wait-right">
-                    <div className="wait-minutes" style={{ color: getStatusColor(zone.status) }}>{p.predicted_wait_minutes}m</div>
-                    <div className={`wait-trend trend-${p.trend}`} aria-label={`Trend: ${p.trend}`}>
-                      {getTrendIcon(p.trend)}
+                    <div className="wait-minutes" style={{ color: getStatusColor(zone.status) }}>
+                      {waitMinutes}m
+                    </div>
+                    <div className={`wait-trend trend-${trend}`} aria-label={`Trend: ${trend}`}>
+                      {getTrendIcon(trend)}
                     </div>
                   </div>
                 </div>

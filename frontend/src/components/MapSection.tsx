@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   APIProvider, 
   Map, 
@@ -25,7 +25,7 @@ const getStatusColor = (status: string) => {
 
 const MapHandler = ({ zones }: { zones: Zone[] }) => {
   const map = useMap();
-  React.useEffect(() => {
+  useEffect(() => {
     const criticalZone = zones.find(z => z.status === 'critical');
     if (criticalZone && criticalZone.lat && criticalZone.lng && map) {
       map.panTo({ lat: criticalZone.lat, lng: criticalZone.lng });

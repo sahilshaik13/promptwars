@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import type { VenueGraph, GraphNode, GraphEdge } from '../types';
 import { getApiUrl } from '../utils/config';

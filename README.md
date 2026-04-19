@@ -21,8 +21,8 @@ Live crowd simulation · Dijkstra navigation · Gemini 2.5 Flash AI · Google Ma
 
 | Service | Direct URL | Description |
 |---|---|---|
-| 🖥️ **Live Dashboard** | **[smartvenue-frontend-623281650123.us-central1.run.app](https://smartvenue-frontend-623281650123.us-central1.run.app)** | Full React UI — Maps, D3 Graph, AI Chat |
-| ⚙️ **Intelligence Engine API** | **[smartvenue-backend-623281650123.us-central1.run.app](https://smartvenue-backend-623281650123.us-central1.run.app)** | FastAPI backend — WebSocket + REST |
+| 🖥️ **Live Dashboard** | **[smartvenue-frontend-623281650123.us-central1.run.app](https://smartvenue-frontend-623281650123.us-central1.run.app)** | Full React UI — Optimized 3D Maps + Real-Time Congestion Sorting |
+| ⚙️ **Intelligence Engine API** | **[smartvenue-backend-623281650123.us-central1.run.app](https://smartvenue-backend-623281650123.us-central1.run.app)** | High-Throughput FastAPI — Real-Time Snapshot Synchronization |
 | 📋 **Swagger API Docs** | [smartvenue-backend-623281650123.us-central1.run.app/docs](https://smartvenue-backend-623281650123.us-central1.run.app/docs) | Interactive API explorer |
 | 💚 **Health Monitor** | [smartvenue-backend-623281650123.us-central1.run.app/health](https://smartvenue-backend-623281650123.us-central1.run.app/health) | Subsystem status — database, simulator, model |
 | 🗺️ **Live Heatmap Data** | [smartvenue-backend-623281650123.us-central1.run.app/api/maps/heatmap](https://smartvenue-backend-623281650123.us-central1.run.app/api/maps/heatmap) | GeoJSON crowd density feed |
@@ -123,8 +123,22 @@ const GCS = 'https://storage.googleapis.com/smartvenue-hitex-assets';
 - OAuth2 flow with `supabase-js` client — users sign in with Google
 - Supabase issues a **JWT (ES256)** signed with its JWKS endpoint
 - Backend verifies every JWT using **`PyJWKClient`** — fetches Supabase's public signing keys dynamically (no secret needed)
-- Supports both `ES256` (Supabase Asymmetric) and `HS256` (legacy fallback)
+- Supports both `ES256` (Supabase Asymmetric) and `HS256` (HS256 symmetric fallback)
 - Redirect URIs whitelisted for both `localhost:5173` and the Cloud Run production URL
+
+### 7. 📬 Cloud Pub/Sub — Event-Driven Messaging
+> **The nervous system of the ingestion pipeline.** Buffers raw sensor telemetry before processing.
+
+- Acts as the decoupled buffer between simulated IoT sensors and the processing engine
+- Ensures zero data loss during traffic spikes via distributed message persistence
+- Topic: `projects/prompt-wars-493709/topics/venue-telemetry`
+
+### 8. 🌊 Cloud Dataflow — Real-Time Streaming Analytics
+> **Processes millions of events with exactly-once semantics.** Powered by Apache Beam.
+
+- Transforms raw coordinates into time-windowed congestion metrics
+- Aggregates zone-level capacity data before delivery to the Intelligence Engine
+- Unified pipeline for both real-time streams and historical training data extraction
 
 ---
 
@@ -134,6 +148,8 @@ const GCS = 'https://storage.googleapis.com/smartvenue-hitex-assets';
 |---|---|
 | ⚡ **Real-Time WebSocket Stream** | `SimulatorEngine` broadcasts a full venue snapshot (25 zones + particles) every 5s to all connected clients |
 | 🧭 **Dijkstra Navigation** | Congestion-weighted shortest path from every gate/parking node to every hall — computed on every chat request |
+| 📊 **Congestion Sorting** | The dashboard list automatically prioritizes the most crowded zones, keeping critical bottlenecks at the top of the operator’s view |
+| 📈 **Real-Time Wait Trends** | ML-predicted wait times and trends (rising/falling) are now synchronized directly in the WebSocket snapshot for zero-flicker UI updates |
 | 🤖 **Gemini Graph RAG** | Pre-computed route table injected into Gemini's context window — AI gives ETA answers with zero hallucination |
 | 🧠 **ML Wait-Time Prediction** | 434MB RandomForest model (scikit-learn) forecasts wait minutes per zone based on theme, situation & live density |
 | 🗺️ **3D Google Maps** | 45° tilt satellite + live heatmap GeoJSON overlay + reactive InfoWindow popups |
@@ -189,6 +205,10 @@ graph TD
         subgraph VAI ["Vertex AI"]
             GEM["🤖 Gemini 2.5 Flash<br/>Native Chat Session<br/>temperature=0"]
         end
+        subgraph INGEST ["Real-Time Pipeline"]
+            PS["📬 Pub/Sub<br/>Telemetry Bus"]
+            DF["🌊 Dataflow<br/>Apache Beam Stream"]
+        end
         subgraph MAPS ["Maps Platform"]
             GMAP["🗺️ Maps JavaScript API<br/>3D Tilt + Heatmap<br/>GeoJSON Overlay"]
         end
@@ -205,6 +225,8 @@ graph TD
     FE -->|Google OAuth| AUTH
     BE -->|Vertex AI SDK| GEM
     BE -->|JWKS Verify| AUTH
+    PS -->|Stream| DF
+    DF -->|Push Metrics| BE
     BE -->|30s Persist| DB
     GEM -->|ETA + Path| BE
     BE -->|5s Snapshots| FE

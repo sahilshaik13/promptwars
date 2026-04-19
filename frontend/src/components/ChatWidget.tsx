@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { getApiUrl } from '../utils/config';
 
 type Message = { sender: 'user' | 'assistant' | 'system', text: string };
