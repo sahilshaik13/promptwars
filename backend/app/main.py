@@ -18,65 +18,91 @@ from app.routers import zones, predict, chat, health, graph, maps
 from app.services.venue_simulator import simulator_engine
 from app.services.supabase_client import save_zone_snapshot
 
+from app.services.auth import verify_token
+
 log = structlog.get_logger(__name__)
 limiter = Limiter(key_func=get_remote_address)
+
+# Identity-Aware Simulation State
+user_settings_registry = {} # Dict[user_id, dict]
 
 # ── Connection Manager for Real-time Streams ──────────────────
 class ConnectionManager:
     def __init__(self):
-        # Use WeakSet so dead connections are auto-garbage-collected
-        self.active_connections: Set[WebSocket] = weakref.WeakSet()
+        # user_id -> List[WebSocket]
+        self.user_connections: dict[str, set[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, user_id: str):
         await websocket.accept()
-        self.active_connections.add(websocket)
-        log.info("websocket_connected", count=len(self.active_connections))
+        if user_id not in self.user_connections:
+            self.user_connections[user_id] = set()
+        self.user_connections[user_id].add(websocket)
+        log.info("websocket_connected", user_id=user_id, count=len(self.user_connections[user_id]))
 
-    def disconnect(self, websocket: WebSocket):
-        if websocket in self.active_connections:
-            self.active_connections.remove(websocket)
-            log.info("websocket_disconnected", count=len(self.active_connections))
+    def disconnect(self, websocket: WebSocket, user_id: str):
+        if user_id in self.user_connections:
+            self.user_connections[user_id].discard(websocket)
+            if not self.user_connections[user_id]:
+                del self.user_connections[user_id]
+            log.info("websocket_disconnected", user_id=user_id)
 
-    async def broadcast(self, message: dict):
-        for connection in list(self.active_connections):
+    async def broadcast_to_user(self, user_id: str, message: dict):
+        if user_id not in self.user_connections:
+            return
+        
+        dead_links = set()
+        for connection in list(self.user_connections[user_id]):
             try:
                 await connection.send_json(message)
             except Exception:
-                # Broken pipe or connection lost
-                self.active_connections.discard(connection)
+                dead_links.add(connection)
+        
+        for dead in dead_links:
+            self.user_connections[user_id].discard(dead)
 
 manager = ConnectionManager()
 
 # ── Background Intelligence Task ──────────────────────────────
 async def venue_intelligence_loop():
-    """ Periodic data generation, broadcast, and persistence. """
+    """ Multi-simulation loop: Generates and multi-casts snapshots per active user. """
     iteration = 0
     while True:
         try:
-            # Generate new frame using the shared Singleton Engine
-            snapshot = simulator_engine.generate_snapshot()
-            snapshot_dict = jsonable_encoder(snapshot)
+            # BROADCAST TO EVERY ACTIVE USER-SPECIFIC SANDBOX
+            active_users = list(manager.user_connections.keys())
             
-            if _cache:
-                await _cache.set("venue_snapshot", snapshot)
-            
-            # LIVE BROADCAST - Always every 5s
-            await manager.broadcast({
-                "type": "SNAPSHOT_UPDATE",
-                "data": snapshot_dict
-            })
-            
-            # PERSISTENCE THROTTLE - Every 30s (iteration % 6 == 0)
-            if iteration % 6 == 0:
-                await save_zone_snapshot(snapshot_dict)
-                log.info("supabase_persistence_synced", timestamp=snapshot.snapshot_time)
+            for user_id in active_users:
+                # Get the last set params for this user or use defaults
+                settings = user_settings_registry.get(user_id, {
+                    "theme": "hackathon",
+                    "situation": "morning_entry",
+                    "severity": "medium"
+                })
+                
+                # Generate unique snapshot for this user's world
+                snapshot = simulator_engine.generate_snapshot(
+                    theme=settings["theme"],
+                    situation=settings["situation"],
+                    severity=settings["severity"]
+                )
+                snapshot_dict = jsonable_encoder(snapshot)
+                
+                # MULTI-CAST - Only to this user
+                await manager.broadcast_to_user(user_id, {
+                    "type": "SNAPSHOT_UPDATE",
+                    "data": snapshot_dict
+                })
+                
+                # PERSISTENCE - Every 30s per user
+                if iteration % 6 == 0:
+                    await save_zone_snapshot(user_id, snapshot_dict)
             
             iteration += 1
             
         except Exception as e:
             log.error("intelligence_loop_error", error=str(e))
             
-        await asyncio.sleep(5)  # 5-second interval for live broadcast
+        await asyncio.sleep(5)
 
 # ── Startup/Shutdown ──────────────────────────────────────────
 _start_time = time.time()
@@ -87,6 +113,7 @@ async def lifespan(app: FastAPI):
     global _cache
     _cache = AsyncTTLCache()
     app.state.cache = _cache
+    app.state.user_settings = user_settings_registry
     app.state.start_time = _start_time
     app.state.request_count = 0
     
@@ -121,17 +148,27 @@ app.add_middleware(
 # ── WebSocket Endpoint ────────────────────────────────────────
 @app.websocket("/api/ws/venue")
 async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+    token = websocket.query_params.get("token")
+    if not token:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+    
+    user_id = verify_token(token)
+    if not user_id:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    await manager.connect(websocket, user_id)
     try:
-        # 1. Send the current ground-truth as initial state
-        initial = simulator_engine.generate_snapshot()
+        # Send initial snapshot immediately
+        settings = user_settings_registry.get(user_id, {"theme": "hackathon", "situation": "morning_entry", "severity": "medium"})
+        initial = simulator_engine.generate_snapshot(**settings)
         await websocket.send_json({"type": "SNAPSHOT_UPDATE", "data": jsonable_encoder(initial)})
         
         while True:
-            # Keep connection open
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(websocket, user_id)
 
 # ── Middleware & Routers ──────────────────────────────────────
 @app.middleware("http")

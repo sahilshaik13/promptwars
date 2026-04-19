@@ -115,17 +115,21 @@ class SimulatorEngine:
         self.auto_rotate = auto_rotate
         self.last_rotation_time = time.time()
 
-    def generate_snapshot(self) -> VenueSnapshot:
-        matrix = THEME_MATRICES.get(self.theme, {})
-        sev_mult = {"low": 0.4, "medium": 0.7, "high": 1.0}.get(self.severity, 0.7)
+    def generate_snapshot(self, theme: str = None, situation: str = None, severity: str = None) -> VenueSnapshot:
+        active_theme = (theme or self.theme).lower()
+        active_situation = (situation or self.situation).lower()
+        active_severity = (severity or self.severity).lower()
+
+        matrix = THEME_MATRICES.get(active_theme, {})
+        sev_mult = {"low": 0.4, "medium": 0.7, "high": 1.0}.get(active_severity, 0.7)
         
         zones = []
         for zid, zname, ztype, cap, lat, lng in self.zone_data:
             base_perc = matrix.get(zid, 8)
-            if self.situation == "morning_entry":
+            if active_situation == "morning_entry":
                 if "gate" in zid or "parking" in zid: base_perc = min(99, base_perc * 1.2)
                 else: base_perc *= 0.6
-            elif self.situation == "closing":
+            elif active_situation == "closing":
                 if "gate" in zid or "parking" in zid: base_perc = min(99, base_perc * 1.3)
                 else: base_perc *= 0.4
             
@@ -133,7 +137,7 @@ class SimulatorEngine:
             jitter = random.uniform(-0.02, 0.02)
             crowd_lvl = min(0.99, max(0.01, crowd_lvl + jitter))
             
-            pred_wait = prediction_service.predict_wait_time(self.theme, self.situation, ztype, crowd_lvl)
+            pred_wait = prediction_service.predict_wait_time(active_theme, active_situation, ztype, crowd_lvl)
             trend = "rising" if crowd_lvl > 0.7 else "falling" if crowd_lvl < 0.2 else "stable"
             zones.append(ZoneStatus(
                 zone_id=zid, name=zname, type=ztype, capacity=cap,
@@ -191,7 +195,7 @@ class SimulatorEngine:
         return VenueSnapshot(
             snapshot_time=datetime.utcnow(),
             match_minute=0,
-            match_phase=f"{self.theme.upper()} - {self.situation.replace('_',' ').upper()} ({self.severity.upper()})",
+            match_phase=f"{active_theme.upper()} - {active_situation.replace('_',' ').upper()} ({active_severity.upper()})",
             zones=zones,
             particles=particles
         )

@@ -63,3 +63,20 @@ def get_current_user(auth: HTTPAuthorizationCredentials = Depends(security)) -> 
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal authentication system error",
         )
+
+def verify_token(token: str) -> str | None:
+    """Verifies a JWT string and returns user_id or None."""
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+        alg = unverified_header.get("alg")
+        if alg == "HS256":
+            key = settings.supabase_jwt_secret
+        else:
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+            key = signing_key.key
+
+        payload = jwt.decode(token, key, algorithms=["HS256", "ES256"], options={"verify_aud": False})
+        return payload.get("sub")
+    except Exception as e:
+        log.warning("token_verification_failed", error=str(e))
+        return None

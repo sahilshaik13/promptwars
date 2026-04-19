@@ -88,12 +88,13 @@ async def get_chat_history(user_id: str, session_id: str, limit: int = 20) -> li
 # Zone snapshots  (written every 30 s by the background refresh)
 # ---------------------------------------------------------------------------
 
-async def save_zone_snapshot(snapshot_json: dict[str, Any]) -> None:
-    """Store a full venue snapshot for historical trend analysis."""
+async def save_zone_snapshot(user_id: str, snapshot_json: dict[str, Any]) -> None:
+    """Store a full venue snapshot for historical trend analysis, scoped by user."""
     try:
         sb = get_supabase()
         sb.table("zone_snapshots").insert(
             {
+                "user_id": user_id,
                 "match_minute": snapshot_json.get("match_minute"),
                 "match_phase": snapshot_json.get("match_phase"),
                 "snapshot_data": snapshot_json,
@@ -103,13 +104,14 @@ async def save_zone_snapshot(snapshot_json: dict[str, Any]) -> None:
         log.warning("snapshot_save_failed", error=str(exc))
 
 
-async def get_recent_snapshots(limit: int = 5) -> list[dict[str, Any]]:
-    """Return the N most-recent zone snapshots (for trend computation)."""
+async def get_recent_snapshots(user_id: str, limit: int = 5) -> list[dict[str, Any]]:
+    """Return the N most-recent zone snapshots for a specific user."""
     try:
         sb = get_supabase()
         result = (
             sb.table("zone_snapshots")
             .select("snapshot_data, created_at")
+            .eq("user_id", user_id)
             .order("created_at", desc=True)
             .limit(limit)
             .execute()

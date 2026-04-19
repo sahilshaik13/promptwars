@@ -140,6 +140,16 @@ const GCS = 'https://storage.googleapis.com/smartvenue-hitex-assets';
 - Aggregates zone-level capacity data before delivery to the Intelligence Engine
 - Unified pipeline for both real-time streams and historical training data extraction
 
+### 🛡️ 9. Isolated Sandbox Architecture (The Ethical Patch)
+> **Absolute data isolation between sessions.**
+
+- **Real-Time Spatial Clustering**: Gravity-based flow simulation with 50ms latency.
+- **Identity-Aware Multi-Casting**: Isolated user sandboxes via secure WebSocket multi-casting.
+- **D3.js Topology Mapping**: Dynamic wait-time graph visualization with congestion-aware edge weighting.
+- **Vertex AI Integration**: Mission-driven Gemini 2.5 Flash sessions with ground-truth context injection.
+- **Google Maps 3D Platform**: Tilt-aware venue heatmaps with GeoJSON density overlays.
+- **Autonomous Persistence**: User-scoped historical snapshots in Supabase for long-term trend analysis tagged with a unique `user_id` to prevent cross-account data leaks.
+
 ---
 
 ## 🚀 Key Capabilities
@@ -227,9 +237,9 @@ graph TD
     BE -->|JWKS Verify| AUTH
     PS -->|Stream| DF
     DF -->|Push Metrics| BE
-    BE -->|30s Persist| DB
+    BE -->|30s Persist (User Scoped)| DB
     GEM -->|ETA + Path| BE
-    BE -->|5s Snapshots| FE
+    BE -->|5s Private Snapshots| FE
     FE -->|Maps JS SDK| GMAP
     CB -->|Build + Deploy| CR
 ```

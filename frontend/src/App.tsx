@@ -45,11 +45,11 @@ function App() {
 
     const connect = () => {
       const apiUrl = getApiUrl().trim().replace(/\/$/, ""); // Remove trailing slash
-      const wsUrl = apiUrl.startsWith('https') 
+      const wsUrl = (apiUrl.startsWith('https') 
         ? apiUrl.replace(/^https/, 'wss') + '/api/ws/venue'
-        : apiUrl.replace(/^http/, 'ws') + '/api/ws/venue';
+        : apiUrl.replace(/^http/, 'ws') + '/api/ws/venue') + `?token=${session.access_token}`;
       
-      console.log(`🔌 Attempting WebSocket connection to: ${wsUrl}`);
+      console.log(`🔌 Attempting WebSocket connection to: ${wsUrl.split('?')[0]}...`); // Log without token
       socket = new WebSocket(wsUrl);
 
       socket.onopen = () => {

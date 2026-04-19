@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, Request
 from app.models import VenueSnapshot
 from app.dependencies import get_cache, get_snapshot
 from app.services.auth import get_current_user
@@ -17,18 +17,23 @@ async def get_zones(
 
 @router.post("/api/simulate")
 async def update_simulation(
+    request: Request,
     theme: str = Body(...),
     situation: str = Body(...),
     severity: str = Body(...),
-    cache: AsyncTTLCache = Depends(get_cache),
     user_id: str = Depends(get_current_user)
 ):
-    """Overrides the current simulation environment theme, situation, and intensity."""
-    # Use the new shared Engine Singleton
-    simulator_engine.set_state(theme, situation, severity, auto_rotate=False)
+    """Overrides the simulation environment FOR THIS USER'S SANDBOX."""
+    # Update the registry for the individual user
+    registry = request.app.state.user_settings
+    registry[user_id] = {
+        "theme": theme,
+        "situation": situation,
+        "severity": severity
+    }
     
-    # Manually invalidate caches 
-    await cache.invalidate("venue_snapshot")
-    await cache.invalidate("venue_graph")
+    # Invalidate per-user cache
+    cache: AsyncTTLCache = request.app.state.cache
+    await cache.invalidate(f"venue_snapshot_{user_id}")
     
-    return {"status": "success", "theme": theme, "situation": situation, "severity": severity}
+    return {"status": "success", "user_id": user_id, "theme": theme, "situation": situation, "severity": severity}

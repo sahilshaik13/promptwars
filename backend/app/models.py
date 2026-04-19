@@ -9,6 +9,12 @@ class ZoneType(str, Enum):
     restroom = "restroom"
     seating = "seating"
 
+class SimulationSettings(BaseModel):
+    user_id: str
+    theme: str = "hackathon"
+    situation: str = "morning_entry"
+    severity: str = "medium"
+
 class ZoneStatus(BaseModel):
     zone_id: str
     name: str
