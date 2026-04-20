@@ -31,7 +31,7 @@ export const Calibrator: React.FC<CalibratorProps> = ({ initialSnapshot }) => {
   const handleMapUpdate = (zoneId: string, lat: number, lng: number) => {
     setZones(prev => prev.map(z => {
       if (z.zone_id === zoneId) {
-        const updates: any = { lat, lng };
+        const updates: Record<string, number> = { lat, lng };
         if (autoSync) {
           const projected = projectToGraph(lat, lng);
           updates.x_hint = projected.x;

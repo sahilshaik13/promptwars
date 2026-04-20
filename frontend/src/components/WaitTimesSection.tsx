@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import type { Zone, WaitTimePrediction } from '../types';
-import { getApiUrl } from '../utils/config';
+import React from 'react';
+import type { Zone } from '../types';
 
 interface WaitTimesSectionProps {
   zones: Zone[];

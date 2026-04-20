@@ -18,7 +18,7 @@ export const ChatWidget: React.FC<{ sessionToken: string }> = ({ sessionToken })
       try {
         const parsed = JSON.parse(saved);
         return parsed.length > 0 ? parsed : [DEFAULT_WELCOME];
-      } catch (e) {
+      } catch {
         return [DEFAULT_WELCOME];
       }
     }

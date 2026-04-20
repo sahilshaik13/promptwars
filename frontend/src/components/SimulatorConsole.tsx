@@ -82,6 +82,9 @@ export const SimulatorConsole: React.FC<SimulatorConsoleProps> = ({ sessionToken
     margin: '0 4px'
   };
 
+  void selectStyle;
+  void dividerStyle;
+
   return (
     <div className="sim-console">
       <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginRight: '4px' }}>

@@ -98,8 +98,8 @@ function App() {
             <p id="auth-subtitle" className="clay-text clay-mb-lg">
               Predict crowd flow, manage wait times, and interact with venue digital twins using Gemini Spatial Intelligence.
             </p>
-            <button 
-              className="clay-button primary clay-mb-md" 
+            <button
+              className="clay-button primary clay-mb-md"
               onClick={handleLogin}
               aria-label="Sign in to access SmartVenue AI"
             >

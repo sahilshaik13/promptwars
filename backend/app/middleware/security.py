@@ -6,6 +6,7 @@ Implements CSP, HSTS, X-Frame-Options, and other security headers
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+import re
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -22,7 +23,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         response = await call_next(request)
 
-        # Content Security Policy
         csp = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://www.gstatic.com; "
@@ -39,22 +39,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
         response.headers['Content-Security-Policy'] = csp
 
-        # Strict-Transport-Security (HSTS) - 1 year
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
-
-        # X-Frame-Options - Prevent clickjacking
         response.headers['X-Frame-Options'] = 'DENY'
-
-        # X-Content-Type-Options - Prevent MIME sniffing
         response.headers['X-Content-Type-Options'] = 'nosniff'
-
-        # X-XSS-Protection - Legacy XSS filter (modern browsers use CSP)
         response.headers['X-XSS-Protection'] = '1; mode=block'
-
-        # Referrer-Policy - Control referrer information
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
 
-        # Permissions-Policy - Control browser features
         permissions_policy = (
             "accelerometer=(), "
             "camera=(), "
@@ -80,12 +70,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
         response.headers['Permissions-Policy'] = permissions_policy
 
-        # Cache-Control - Prevent sensitive data caching
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, private'
         response.headers['Pragma'] = 'no-cache'
 
-        # Remove server information
         response.headers['Server'] = 'SmartVenue'
+
+        response.headers['X-Request-ID'] = str(hash(str(request.url)))
 
         return response
 
@@ -110,18 +100,16 @@ class CORSMiddleware:
     async def handle(self, request: Request) -> Response:
         origin = request.headers.get('origin', '')
 
-        # Check if origin is allowed
         if origin not in self.allowed_origins:
             origin = self.allowed_origins[0] if self.allowed_origins else ''
 
-        # Process the request
         response = await self.app(request.scope, request.receive)
 
-        # Add CORS headers
         if hasattr(response, 'headers'):
             response.headers['Access-Control-Allow-Origin'] = origin
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
             response.headers['Access-Control-Max-Age'] = '3600'
+            response.headers['Vary'] = 'Origin'
 
         return response
