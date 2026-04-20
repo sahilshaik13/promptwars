@@ -14,7 +14,15 @@ from app.utils.spatial_utils import THEME_MATRICES, calculate_crowd_level, gener
 log = structlog.get_logger(__name__)
 
 class SimulatorEngine:
+    """
+    Core Venue Intelligence simulation engine.
+    
+    Orchestrates the lifecycle of the Hitex digital twin, including
+    crowd density generation, ML-based wait time forecasting, and 
+    high-fidelity spatial particle scattering.
+    """
     def __init__(self):
+        """Initializes the backend simulation parameters and loads calibration data."""
         self.theme = "hackathon"
         self.situation = "morning_entry"
         self.severity = "medium"
@@ -24,6 +32,7 @@ class SimulatorEngine:
         self._load_patterns()
 
     def _load_zone_data(self):
+        """Loads physical venue geometry and safe capacity thresholds."""
         # 1:1 PARITY WITH CALIBRATION JSON
         self.zone_data = [
             ("gate_main",    "Main Gate Entrance (MG)",  ZoneType.gate, 5000, 17.469243, 78.376628),
@@ -56,6 +65,7 @@ class SimulatorEngine:
         ]
 
     def _load_patterns(self):
+        """Loads hero particle patterns from internal resources."""
         self.patterns = {}
         path = os.path.join(os.path.dirname(__file__), "../resources/hero_patterns.json")
         if os.path.exists(path):
@@ -63,6 +73,15 @@ class SimulatorEngine:
                 self.patterns = json.load(f)
 
     def set_state(self, theme: str, situation: str, severity: str, auto_rotate: bool = True):
+        """
+        Updates the global sandbox state for a specific simulation scenario.
+        
+        Args:
+            theme (str): The visual/event theme.
+            situation (str): The operational scenario.
+            severity (str): Complexity multiplier (low, medium, high).
+            auto_rotate (bool): Whether to cycle scenarios automatically.
+        """
         log.info("simulator_state_update", theme=theme, situation=situation, severity=severity)
         self.theme = theme.lower()
         self.situation = situation.lower()
@@ -72,8 +91,19 @@ class SimulatorEngine:
 
     def generate_snapshot(self, theme: str = None, situation: str = None, severity: str = None) -> VenueSnapshot:
         """
-        Generates a full spatial snapshot of the venue using the specified simulation parameters.
-        Scopes generation to user-specific themes for sandbox isolation.
+        Generates a high-fidelity SITREP snapshot of the venue state.
+        
+        This is the primary data source for the real-time visualization and 
+        Gemini AI intelligence.
+        
+        Args:
+            theme (str, optional): Override theme.
+            situation (str, optional): Override situation.
+            severity (str, optional): Override severity.
+            
+        Returns:
+            VenueSnapshot: A Pydantic model containing all zone states and 
+                          dynamic spatial indicators.
         """
         active_theme = (theme or self.theme).lower()
         active_situation = (situation or self.situation).lower()

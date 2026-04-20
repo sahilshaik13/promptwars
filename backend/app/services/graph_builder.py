@@ -183,11 +183,26 @@ ZONE_ALIASES: dict[str, str] = {
 
 
 def build_venue_graph(snapshot: VenueSnapshot) -> VenueGraph:
+    """
+    Constructs a topological graph from a live venue snapshot.
+    
+    This function creates a normalized coordinate system for visualization
+    and maps the physical topology matrix onto the live zone stats.
+    
+    Args:
+        snapshot (VenueSnapshot): The current state of the venue.
+        
+    Returns:
+        VenueGraph: A serializable graph containing nodes with live metrics 
+                   and edges with congestion-aware weights.
+    """
     if not snapshot.zones:
         return VenueGraph()
 
-    lats = [z.lat for z in snapshot.zones]
-    lngs = [z.lng for z in snapshot.zones]
+    lats = [z.lat for z in snapshot.zones if z.lat is not None]
+    lngs = [z.lng for z in snapshot.zones if z.lng is not None]
+
+    if not lats: return VenueGraph()
 
     min_lat, max_lat = min(lats), max(lats)
     min_lng, max_lng = min(lngs), max(lngs)
@@ -199,8 +214,12 @@ def build_venue_graph(snapshot: VenueSnapshot) -> VenueGraph:
     zone_map = {z.zone_id: z for z in snapshot.zones}
 
     for z in snapshot.zones:
-        x = (margin / 2) + ((z.lng - min_lng) / lng_range) * (1 - margin)
-        y = (1 - margin / 2) - ((z.lat - min_lat) / lat_range) * (1 - margin)
+        # Avoid None issues in coordinate mapping
+        z_lat = z.lat if z.lat is not None else min_lat
+        z_lng = z.lng if z.lng is not None else min_lng
+        
+        x = (margin / 2) + ((z_lng - min_lng) / lng_range) * (1 - margin)
+        y = (1 - margin / 2) - ((z_lat - min_lat) / lat_range) * (1 - margin)
         nodes.append(GraphNode(
             id=z.zone_id, label=z.name, type=z.type,
             crowd_level=z.crowd_level, status=z.status,
@@ -309,10 +328,16 @@ _ROUTE_DESTINATIONS = [
 
 def compute_all_fastest_routes(graph: VenueGraph) -> list[dict]:
     """
-    Pre-computes Dijkstra fastest routes from ALL meaningful origin zones to ALL
-    destination zones. Returns a list of route dicts sorted by ETA ascending.
-
-    Every chat request calls this so the AI always has live congestion-aware ETAs.
+    Pre-computes Dijkstra fastest routes between all canonical origins and destinations.
+    
+    This function generates a lookup table of routes, ETA minutes, and bottlenecks
+    to be injected into the LLM context for real-time situational awareness.
+    
+    Args:
+        graph (VenueGraph): The live venue knowledge graph.
+        
+    Returns:
+        list[dict]: A list of route objects, sorted by ETA.
     """
     name_map = {n.id: n.label for n in graph.nodes}
     node_ids = {n.id for n in graph.nodes}
@@ -356,9 +381,10 @@ def compute_all_fastest_routes(graph: VenueGraph) -> list[dict]:
 
 def build_alias_context() -> str:
     """
-    Returns the alias map as a formatted string for Gemini's context.
-    Gemini uses this to resolve informal user queries to canonical zone names
-    BEFORE looking up the pre-computed route table.
+    Constructs a textual map of fuzzy zone names to canonical IDs for LLM resolution.
+    
+    Returns:
+        str: A formatted string for a system prompt.
     """
     lines = ["NATURAL LANGUAGE ALIAS MAP (resolve user terms → canonical zone names):"]
     # Group by destination for readability
@@ -371,6 +397,15 @@ def build_alias_context() -> str:
 
 
 def graph_to_text_summary(graph: VenueGraph) -> str:
+    """
+    Converts the entire graph state into a dense text summary for AI consumption.
+    
+    Args:
+        graph (VenueGraph): The live venue graph.
+        
+    Returns:
+        str: A comprehensive SITREP of the venue state.
+    """
     name_map = {n.id: n.label for n in graph.nodes}
     node_lines = "\n".join(
         f"- {n.label} (ID: {n.id}): {n.status.upper()} | {int(n.crowd_level*100)}% crowd"
@@ -409,6 +444,7 @@ RULES (MANDATORY):
 
 
 def graph_to_dict(graph: VenueGraph) -> dict[str, Any]:
+    """Serializes the graph for API responses."""
     return {
         "nodes": [asdict(n) for n in graph.nodes],
         "edges": [asdict(e) for e in graph.edges],

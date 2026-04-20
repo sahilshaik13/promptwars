@@ -86,6 +86,9 @@ def find_fastest_route(
                 heapq.heappush(pq, (distance, neighbor))
                 
     # Reconstruct path
+    if target_id not in previous_nodes:
+        return {"path": [], "readable": "No available route.", "eta_mins": -1}
+
     path = []
     current = target_id
     while current is not None:
