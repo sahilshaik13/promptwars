@@ -1,3 +1,4 @@
+import os
 import asyncio
 import time
 import weakref
@@ -150,13 +151,14 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+# Load CORS origins from environment
+allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173")
+allowed_origins = [o.strip() for o in allowed_origins_raw.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://smartvenue-frontend-623281650123.us-central1.run.app"
-    ],
-    allow_origin_regex="https://smartvenue-frontend-.*\.us-central1\.run\.app",
+    allow_origins=allowed_origins,
+    allow_origin_regex=os.getenv("ALLOWED_ORIGIN_REGEX"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

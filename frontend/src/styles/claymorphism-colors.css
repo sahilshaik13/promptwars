@@ -1,0 +1,256 @@
+/* ==========================================
+   CLAYMORPHISM COLOR PALETTE
+   SmartVenue Intelligence Engine
+   ========================================== */
+
+/* Core Claymorphism Variables */
+:root {
+  /* Primary Colors - Soft & Friendly */
+  --clay-white: #ffffff;
+  --clay-black: #1a1a2e;
+  
+  /* Accent Colors - Vibrant & Visible */
+  --clay-red: #e53935;
+  --clay-orange: #ff9800;
+  --clay-amber: #ffc107;
+  --clay-yellow: #ffeb3b;
+  --clay-lime: #cddc39;
+  --clay-green: #4caf50;
+  --clay-teal: #009688;
+  --clay-cyan: #00bcd4;
+  --clay-blue: #2196f3;
+  --clay-indigo: #3f51b5;
+  --clay-purple: #9c27b0;
+  --clay-pink: #e91e63;
+  
+  /* Neutral Colors - Soft grays */
+  --clay-gray-50: #fafbfc;
+  --clay-gray-100: #f4f6f8;
+  --clay-gray-200: #e9ecef;
+  --clay-gray-300: #dee2e6;
+  --clay-gray-400: #ced4da;
+  --clay-gray-500: #adb5bd;
+  --clay-gray-600: #868e96;
+  --clay-gray-700: #495057;
+  --clay-gray-800: #343a40;
+  --clay-gray-900: #212529;
+  
+  /* Functional Surface Colors */
+  --clay-bg: var(--clay-gray-100);
+  --clay-surface: var(--clay-white);
+  --clay-surface-hover: var(--clay-gray-50);
+  --clay-surface-active: var(--clay-gray-200);
+  
+  /* Text Colors */
+  --clay-text: var(--clay-gray-900);
+  --clay-text-secondary: var(--clay-gray-700);
+  --clay-text-muted: var(--clay-gray-600);
+  --clay-text-inverse: var(--clay-white);
+  
+  /* Status Colors - Soft & Visible */
+  --clay-success: var(--clay-green);
+  --clay-success-light: #c8e6c9;
+  --clay-warning: var(--clay-amber);
+  --clay-warning-light: #fff9c4;
+  --clay-danger: var(--clay-red);
+  --clay-danger-light: #ffcdd2;
+  --clay-info: var(--clay-blue);
+  --clay-info-light: #bbdefb;
+  --clay-accent: var(--clay-purple);
+  
+  /* Venue-Specific Status - Soft backgrounds */
+  --clay-low: var(--clay-green);
+  --clay-low-bg: #e8f5e9;
+  --clay-medium: var(--clay-orange);
+  --clay-medium-bg: #fff3e0;
+  --clay-high: var(--clay-red);
+  --clay-high-bg: #ffebee;
+  --clay-critical: var(--clay-purple);
+  --clay-critical-bg: #f3e5f5;
+  
+  /* Typography */
+  --clay-font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --clay-font-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --clay-font-display: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
+  
+  /* Spacing */
+  --clay-space-xs: 4px;
+  --clay-space-sm: 8px;
+  --clay-space-md: 16px;
+  --clay-space-lg: 24px;
+  --clay-space-xl: 32px;
+  --clay-space-xxl: 48px;
+  
+  /* Claymorphism Radii */
+  --clay-radius-xs: 4px;
+  --clay-radius-sm: 8px;
+  --clay-radius-md: 12px;
+  --clay-radius-lg: 16px;
+  --clay-radius-xl: 24px;
+  --clay-radius-full: 9999px;
+  
+  /* Enhanced 3D Claymorphism Shadows - Multiple Layers for Depth */
+  --clay-shadow-sm: 
+    -3px -3px 8px rgba(255, 255, 255, 0.95),
+    3px 3px 8px rgba(0, 0, 0, 0.08),
+    -1px -1px 4px rgba(255, 255, 255, 1),
+    1px 1px 4px rgba(0, 0, 0, 0.05);
+  
+  --clay-shadow: 
+    -6px -6px 16px rgba(255, 255, 255, 0.95),
+    6px 6px 16px rgba(0, 0, 0, 0.1),
+    -2px -2px 8px rgba(255, 255, 255, 1),
+    2px 2px 8px rgba(0, 0, 0, 0.06);
+  
+  --clay-shadow-hover: 
+    -10px -10px 24px rgba(255, 255, 255, 1),
+    10px 10px 24px rgba(0, 0, 0, 0.12),
+    -3px -3px 12px rgba(255, 255, 255, 1),
+    3px 3px 12px rgba(0, 0, 0, 0.08);
+  
+  --clay-shadow-lg: 
+    -15px -15px 30px rgba(255, 255, 255, 0.98),
+    15px 15px 30px rgba(0, 0, 0, 0.15),
+    -5px -5px 15px rgba(255, 255, 255, 1),
+    5px 5px 15px rgba(0, 0, 0, 0.1);
+  
+  --clay-shadow-inset: 
+    inset -4px -4px 10px rgba(255, 255, 255, 0.9),
+    inset 4px 4px 10px rgba(0, 0, 0, 0.08),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.8),
+    inset 2px 2px 6px rgba(0, 0, 0, 0.05);
+  
+  --clay-shadow-inset-strong: 
+    inset -6px -6px 14px rgba(255, 255, 255, 1),
+    inset 6px 6px 14px rgba(0, 0, 0, 0.12),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.9),
+    inset 3px 3px 8px rgba(0, 0, 0, 0.08);
+  
+  /* Breakpoints */
+  --clay-mobile: 480px;
+  --clay-tablet: 768px;
+  --clay-desktop: 1024px;
+  --clay-wide: 1440px;
+}
+
+/* ==========================================
+   GRAPH NODE STATUS COLORS
+   ========================================== */
+
+/* Low Status - Green glow */
+.clay-graph-node[data-status="low"] circle {
+  fill: var(--clay-low-bg);
+  stroke: var(--clay-low);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.4));
+}
+
+.clay-graph-node[data-status="low"] text {
+  fill: var(--clay-low);
+  font-weight: 700;
+}
+
+/* Medium Status - Orange glow */
+.clay-graph-node[data-status="medium"] circle {
+  fill: var(--clay-medium-bg);
+  stroke: var(--clay-medium);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(255, 152, 0, 0.4));
+}
+
+.clay-graph-node[data-status="medium"] text {
+  fill: var(--clay-medium);
+  font-weight: 700;
+}
+
+/* High Status - Red glow */
+.clay-graph-node[data-status="high"] circle {
+  fill: var(--clay-high-bg);
+  stroke: var(--clay-high);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgba(229, 57, 53, 0.5));
+}
+
+.clay-graph-node[data-status="high"] text {
+  fill: var(--clay-high);
+  font-weight: 700;
+}
+
+/* Critical Status - Purple glow */
+.clay-graph-node[data-status="critical"] circle {
+  fill: var(--clay-critical-bg);
+  stroke: var(--clay-critical);
+  stroke-width: 4;
+  filter: drop-shadow(0 0 12px rgba(156, 39, 176, 0.6));
+}
+
+.clay-graph-node[data-status="critical"] text {
+  fill: var(--clay-critical);
+  font-weight: 700;
+}
+
+/* Graph Links */
+.clay-graph-link {
+  stroke: var(--clay-gray-400);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.clay-graph-link.active {
+  stroke: var(--clay-accent);
+  stroke-width: 4;
+  opacity: 1;
+}
+
+/* ==========================================
+   HIGH CONTRAST MODE
+   ========================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    --clay-shadow-sm: 
+      -2px -2px 4px rgba(255, 255, 255, 1),
+      2px 2px 4px rgba(0, 0, 0, 0.3);
+    
+    --clay-shadow: 
+      -4px -4px 8px rgba(255, 255, 255, 1),
+      4px 4px 8px rgba(0, 0, 0, 0.4);
+    
+    --clay-shadow-hover: 
+      -6px -6px 12px rgba(255, 255, 255, 1),
+      6px 6px 12px rgba(0, 0, 0, 0.5);
+    
+    --clay-shadow-lg: 
+      -8px -8px 16px rgba(255, 255, 255, 1),
+      8px 8px 16px rgba(0, 0, 0, 0.6);
+    
+    --clay-shadow-inset: 
+      inset -2px -2px 4px rgba(255, 255, 255, 1),
+      inset 2px 2px 4px rgba(0, 0, 0, 0.3);
+    
+    --clay-shadow-inset-strong: 
+      inset -4px -4px 8px rgba(255, 255, 255, 1),
+      inset 4px 4px 8px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+:root {
+  --clay-focus-ring: 0 0 0 4px var(--clay-info);
+  --clay-focus-outline: 4px solid var(--clay-info);
+  
+  --clay-sr-only: absolute !important;
+  --clay-sr-only-position: absolute;
+  --clay-sr-only-width: 1px !important;
+  --clay-sr-only-height: 1px !important;
+  --clay-sr-only-padding: 0 !important;
+  --clay-sr-only-margin: -1px !important;
+  --clay-sr-only-overflow: hidden !important;
+  --clay-sr-only-clip: rect(0, 0, 0, 0) !important;
+  --clay-sr-only-white-space: nowrap !important;
+  --clay-sr-only-border: 0 !important;
+}

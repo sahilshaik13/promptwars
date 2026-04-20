@@ -55,5 +55,5 @@ async def test_save_zone_snapshot(mock_supabase):
 @pytest.mark.asyncio
 async def test_log_wait_prediction(mock_supabase):
     """Verify prediction logging."""
-    await log_wait_prediction("z1", 5, 0.9, "rising")
+    await log_wait_prediction("u1", "z1", 5, 0.9, "rising")
     mock_supabase.table.assert_called_with("wait_predictions")

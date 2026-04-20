@@ -1,0 +1,272 @@
+/* ==========================================
+   MOBILE-OPTIMIZED CLAYMORPHISM OVERRIDES
+   SmartVenue Intelligence Engine
+   ========================================== */
+
+/* Import Claymorphism Color Palette */
+@import './claymorphism-colors.css';
+
+/* ==========================================
+   MOBILE-OPTIMIZED CONTAINER SIZES
+   ========================================== */
+
+/* Mobile-First Approach - Compact Layout with Reduced Chin */
+@media (max-width: 768px) {
+  /* Graph Section - Compact height, full width, reduced bottom padding */
+  #graph-section {
+    min-height: auto !important;
+    height: auto !important;
+    margin: var(--clay-space-xs) 0 !important;
+    padding: var(--clay-space-md) var(--clay-space-md) var(--clay-space-sm) var(--clay-space-md) !important;
+    border-radius: var(--clay-radius-lg) !important;
+  }
+  
+  #graph-container {
+    min-height: 300px !important;
+    height: 300px !important;
+    max-height: 350px !important;
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    margin-top: var(--clay-space-xs) !important;
+  }
+  
+  /* Map Section - Compact height, full width, reduced bottom padding */
+  #map-section {
+    min-height: auto !important;
+    height: auto !important;
+    margin: var(--clay-space-xs) 0 !important;
+    padding: var(--clay-space-md) var(--clay-space-md) var(--clay-space-sm) var(--clay-space-md) !important;
+    border-radius: var(--clay-radius-lg) !important;
+  }
+  
+  #map-container {
+    min-height: 280px !important;
+    height: 280px !important;
+    max-height: 320px !important;
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    margin-top: var(--clay-space-xs) !important;
+  }
+  
+  /* Claymorphism Mode Mobile Overrides */
+  .claymorphism-mode #graph-section,
+  .claymorphism-mode #map-section {
+    border-radius: var(--clay-radius-lg) !important;
+    box-shadow: var(--clay-shadow) !important;
+    margin: var(--clay-space-xs) 0 !important;
+  }
+  
+  .claymorphism-mode #graph-container,
+  .claymorphism-mode #map-container {
+    border-radius: var(--clay-radius-md) !important;
+  }
+  
+  /* Mobile Grid - Single column */
+  .claymorphism-mode main {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--clay-space-xs) !important;
+    padding: var(--clay-space-xs) !important;
+  }
+  
+  .claymorphism-mode .clay-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--clay-space-xs) !important;
+  }
+  
+  /* Force full width on mobile */
+  .claymorphism-mode .clay-span-6,
+  .claymorphism-mode .clay-span-8,
+  .claymorphism-mode .clay-span-4,
+  .claymorphism-mode .clay-span-12 {
+    grid-column: span 1 !important;
+    width: 100% !important;
+  }
+  
+  /* Compact data items */
+  .claymorphism-mode .clay-data-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--clay-space-sm) !important;
+  }
+  
+  .claymorphism-mode .clay-data-item {
+    padding: var(--clay-space-sm) !important;
+    min-height: 80px !important;
+  }
+  
+  .claymorphism-mode .clay-data-value {
+    font-size: 1.25rem !important;
+  }
+  
+  .claymorphism-mode .clay-data-label {
+    font-size: 0.65rem !important;
+  }
+  
+  /* Compact header */
+  .claymorphism-mode .clay-header {
+    padding: var(--clay-space-sm) !important;
+    gap: var(--clay-space-xs) !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .claymorphism-mode .clay-logo {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Compact cards */
+  .claymorphism-mode .clay-card {
+    padding: var(--clay-space-sm) !important;
+    border-radius: var(--clay-radius-md) !important;
+    margin: 0 !important;
+  }
+  
+  /* Compact buttons */
+  .claymorphism-mode .clay-button {
+    padding: var(--clay-space-xs) var(--clay-space-sm) !important;
+    font-size: 0.8rem !important;
+    min-width: auto !important;
+    width: 100% !important;
+    margin-bottom: var(--clay-space-xs) !important;
+  }
+  
+  /* Zone grid mobile optimization */
+  .claymorphism-mode .zone-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: var(--clay-space-sm) !important;
+    padding: var(--clay-space-sm) !important;
+  }
+  
+  .claymorphism-mode .zone-cell {
+    padding: var(--clay-space-sm) !important;
+    min-height: 75px !important;
+    border-radius: var(--clay-radius-md) !important;
+  }
+  
+  .claymorphism-mode .zone-percent {
+    font-size: 1.1rem !important;
+  }
+  
+  .claymorphism-mode .zone-name {
+    font-size: 0.65rem !important;
+  }
+  
+  /* Chat button mobile positioning */
+  #chat-btn {
+    width: 48px !important;
+    height: 48px !important;
+    bottom: 16px !important;
+    right: 16px !important;
+    font-size: 1.2rem !important;
+  }
+  
+  #chat-panel {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 70px !important;
+    max-height: 60vh !important;
+  }
+  
+  #chat-messages {
+    height: 250px !important;
+  }
+  
+  /* Simulator console mobile optimization */
+  .sim-console {
+    width: 100% !important;
+    padding: var(--clay-space-sm) !important;
+    font-size: 0.7rem !important;
+    border-radius: var(--clay-radius-md) !important;
+  }
+  
+  .sim-console select {
+    font-size: 0.65rem !important;
+    padding: 4px !important;
+    border-radius: var(--clay-radius-xs) !important;
+  }
+  
+  .sim-console button {
+    font-size: 0.65rem !important;
+    padding: var(--clay-space-xs) !important;
+    border-radius: var(--clay-radius-xs) !important;
+  }
+}
+
+/* Ultra-compact for very small devices */
+@media (max-width: 480px) {
+  #graph-section {
+    padding: var(--clay-space-sm) var(--clay-space-sm) var(--clay-space-xs) var(--clay-space-sm) !important;
+  }
+  
+  #graph-container {
+    min-height: 250px !important;
+    height: 250px !important;
+    max-height: 280px !important;
+  }
+  
+  #map-section {
+    padding: var(--clay-space-sm) var(--clay-space-sm) var(--clay-space-xs) var(--clay-space-sm) !important;
+  }
+  
+  #map-container {
+    min-height: 220px !important;
+    height: 220px !important;
+    max-height: 250px !important;
+  }
+  
+  .claymorphism-mode .clay-data-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .claymorphism-mode .zone-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .claymorphism-mode .clay-data-item {
+    min-height: 70px !important;
+    padding: var(--clay-space-sm) !important;
+  }
+  
+  .claymorphism-mode .clay-data-value {
+    font-size: 1.1rem !important;
+  }
+  
+  .clay-title {
+    font-size: clamp(1.25rem, 6vw, 1.75rem) !important;
+  }
+  
+  .clay-subtitle {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Tablet optimization - medium compact */
+@media (min-width: 769px) and (max-width: 1024px) {
+  #graph-section {
+    padding: var(--clay-space-lg) var(--clay-space-lg) var(--clay-space-md) var(--clay-space-lg) !important;
+  }
+  
+  #graph-container {
+    min-height: 400px !important;
+    height: 400px !important;
+    max-height: 450px !important;
+  }
+  
+  #map-section {
+    padding: var(--clay-space-lg) var(--clay-space-lg) var(--clay-space-md) var(--clay-space-lg) !important;
+  }
+  
+  #map-container {
+    min-height: 380px !important;
+    height: 380px !important;
+    max-height: 420px !important;
+  }
+  
+  .claymorphism-mode .clay-data-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  
+  .claymorphism-mode .zone-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}

@@ -127,6 +127,7 @@ async def get_recent_snapshots(user_id: str, limit: int = 5) -> list[dict[str, A
 # ---------------------------------------------------------------------------
 
 async def log_wait_prediction(
+    user_id: str,
     zone_id: str,
     predicted_wait: int,
     confidence: float,
@@ -137,6 +138,7 @@ async def log_wait_prediction(
         sb = get_supabase()
         sb.table("wait_predictions").insert(
             {
+                "user_id": user_id,
                 "zone_id": zone_id,
                 "predicted_wait_minutes": predicted_wait,
                 "confidence": confidence,

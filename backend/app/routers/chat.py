@@ -49,13 +49,12 @@ class ChatResponse(BaseModel):
 async def chat(
     request: Request,
     body: ChatRequest,
-    cache: AsyncTTLCache = Depends(get_cache),
+    snapshot = Depends(get_snapshot),
     user_id: str = Depends(get_current_user),
 ) -> ChatResponse:
     t0 = time.time()
 
     # Get live snapshot and build graph
-    snapshot = await get_snapshot(cache)
     venue_graph = build_venue_graph(snapshot)
 
     # Dijkstra: pre-compute fastest routes for all origin→destination pairs
@@ -77,23 +76,13 @@ async def chat(
         raise HTTPException(status_code=503, detail="AI assistant temporarily unavailable")
 
     latency = int((time.time() - t0) * 1000)
+    log.info("chat_response_sent", user_id=user_id, latency_ms=latency, session_id=body.session_id)
 
-    zones_referenced = [
-        z.zone_id for z in snapshot.zones
-        if z.name.lower() in reply.lower() or z.zone_id in reply.lower()
-    ]
+    # Persist the exchange asynchronously
+    asyncio.create_task(save_chat_message(user_id, body.session_id, body.message, reply))
 
-    # Persist both turns — non-blocking fire-and-forget
-    asyncio.create_task(save_chat_message(user_id, body.session_id, "user", body.message))
-    asyncio.create_task(
-        save_chat_message(user_id, body.session_id, "assistant", reply, zones_referenced)
+    return ChatResponse(
+        reply=reply,
+        zones_referenced=[],  # future: parse from Gemini response
+        response_time_ms=latency,
     )
-
-    log.info(
-        "chat_served",
-        session_id=body.session_id,
-        latency_ms=latency,
-        zones_referenced=len(zones_referenced),
-    )
-
-    return ChatResponse(reply=reply, zones_referenced=zones_referenced, response_time_ms=latency)

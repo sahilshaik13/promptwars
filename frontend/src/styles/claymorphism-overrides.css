@@ -1,0 +1,560 @@
+/* ==========================================
+   CLAYMORPHISM OVERRIDES
+   SmartVenue Intelligence Engine
+   ========================================== */
+
+/* Import Claymorphism Color Palette */
+@import './claymorphism-colors.css';
+
+/* ==========================================
+   CLAYMORPHISM MODE
+   ========================================== */
+
+.claymorphism-mode {
+  /* Light backgrounds */
+  --bg: var(--clay-bg);
+  --surface: var(--clay-surface);
+  --surface-2: var(--clay-gray-200);
+  --surface-3: var(--clay-gray-300);
+  
+  /* Text colors */
+  --text: var(--clay-text);
+  --text-muted: var(--clay-text-muted);
+  
+  /* Accent colors */
+  --accent: var(--clay-accent);
+  --info: var(--clay-info);
+  --success: var(--clay-success);
+  --warning: var(--clay-warning);
+  --danger: var(--clay-danger);
+  
+  /* Status colors */
+  --low: var(--clay-low);
+  --medium: var(--clay-medium);
+  --high: var(--clay-high);
+  --critical: var(--clay-critical);
+  
+  /* Fonts */
+  --font-display: var(--clay-font-display);
+  --font-body: var(--clay-font-sans);
+  --font-mono: var(--clay-font-mono);
+  --radius: var(--clay-radius-md);
+}
+
+/* ==========================================
+   CLAYMORPHISM COMPONENT STYLING
+   ========================================== */
+
+/* Card System - Clay effect with enhanced shadows */
+.claymorphism-mode .card,
+.claymorphism-mode #heatmap-section,
+.claymorphism-mode #waittimes-section {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-lg);
+  box-shadow: var(--clay-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.claymorphism-mode .card::before,
+.claymorphism-mode #heatmap-section::before,
+.claymorphism-mode #waittimes-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.claymorphism-mode .card:hover,
+.claymorphism-mode #heatmap-section:hover,
+.claymorphism-mode #waittimes-section:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--clay-shadow-lg);
+}
+
+.claymorphism-mode .card-header {
+  background: transparent;
+  padding: var(--clay-space-md);
+  border-bottom: none;
+  font-family: var(--clay-font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.claymorphism-mode .card-title {
+  font-family: var(--clay-font-display);
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--clay-text);
+}
+
+/* Buttons - Clay effect */
+.claymorphism-mode button,
+.claymorphism-mode .btn {
+  background: var(--clay-surface);
+  color: var(--clay-text);
+  border: none;
+  border-radius: var(--clay-radius-md);
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+  padding: var(--clay-space-sm) var(--clay-space-md);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: var(--clay-shadow-sm);
+}
+
+.claymorphism-mode button:hover,
+.claymorphism-mode .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--clay-shadow);
+}
+
+.claymorphism-mode button:active,
+.claymorphism-mode .btn:active {
+  transform: translateY(0);
+  box-shadow: var(--clay-shadow-inset);
+}
+
+.claymorphism-mode button.primary,
+.claymorphism-mode .btn.primary {
+  background: var(--clay-accent);
+  color: var(--clay-text-inverse);
+}
+
+.claymorphism-mode button.success,
+.claymorphism-mode .btn.success {
+  background: var(--clay-success);
+  color: var(--clay-text-inverse);
+}
+
+.claymorphism-mode button.warning,
+.claymorphism-mode .btn.warning {
+  background: var(--clay-warning);
+  color: var(--clay-text);
+}
+
+/* Zone Grid - Clay cells with status colors */
+.claymorphism-mode .zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--clay-space-md);
+  padding: var(--clay-space-md);
+}
+
+.claymorphism-mode .zone-cell {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-lg);
+  padding: var(--clay-space-md);
+  position: relative;
+  box-shadow: var(--clay-shadow-sm);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.claymorphism-mode .zone-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.claymorphism-mode .zone-cell:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--clay-shadow);
+}
+
+/* Zone status backgrounds - soft gradients */
+.claymorphism-mode .zone-cell[data-status="low"] {
+  background: linear-gradient(145deg, var(--clay-low-bg) 0%, rgba(232, 245, 233, 0.6) 100%);
+  box-shadow: var(--clay-shadow-sm), inset 0 -4px 0 rgba(76, 175, 80, 0.3);
+}
+
+.claymorphism-mode .zone-cell[data-status="medium"] {
+  background: linear-gradient(145deg, var(--clay-medium-bg) 0%, rgba(255, 243, 224, 0.6) 100%);
+  box-shadow: var(--clay-shadow-sm), inset 0 -4px 0 rgba(255, 152, 0, 0.3);
+}
+
+.claymorphism-mode .zone-cell[data-status="high"] {
+  background: linear-gradient(145deg, var(--clay-high-bg) 0%, rgba(255, 235, 238, 0.6) 100%);
+  box-shadow: var(--clay-shadow-sm), inset 0 -4px 0 rgba(229, 57, 53, 0.3);
+}
+
+.claymorphism-mode .zone-cell[data-status="critical"] {
+  background: linear-gradient(145deg, var(--clay-critical-bg) 0%, rgba(243, 229, 245, 0.6) 100%);
+  box-shadow: var(--clay-shadow-sm), inset 0 -4px 0 rgba(156, 39, 176, 0.3);
+}
+
+.claymorphism-mode .zone-percent {
+  font-family: var(--clay-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: var(--clay-space-xs);
+}
+
+.claymorphism-mode .zone-cell[data-status="low"] .zone-percent { color: var(--clay-low); }
+.claymorphism-mode .zone-cell[data-status="medium"] .zone-percent { color: var(--clay-medium); }
+.claymorphism-mode .zone-cell[data-status="high"] .zone-percent { color: var(--clay-high); }
+.claymorphism-mode .zone-cell[data-status="critical"] .zone-percent { color: var(--clay-critical); }
+
+.claymorphism-mode .zone-name {
+  display: none;
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--clay-text-secondary);
+}
+
+.claymorphism-mode .wait-zone {
+  display: none;
+}
+
+.claymorphism-mode .zone-badge {
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  background: var(--clay-surface);
+  padding: 4px 8px;
+  border-radius: var(--clay-radius-full);
+  color: var(--clay-text);
+  box-shadow: var(--clay-shadow-sm);
+}
+
+/* Wait Cards */
+.claymorphism-mode .wait-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--clay-space-md);
+}
+
+.claymorphism-mode .wait-card {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-md);
+  padding: var(--clay-space-md);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--clay-shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.claymorphism-mode .wait-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--clay-shadow);
+}
+
+/* Header - Clay effect */
+.claymorphism-mode header {
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-sm);
+  padding: var(--clay-space-md);
+  border-radius: 0;
+}
+
+.claymorphism-mode .logo {
+  font-family: var(--clay-font-display);
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--clay-accent) 0%, var(--clay-info) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.claymorphism-mode .live-dot {
+  font-family: var(--clay-font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--clay-low);
+  background: var(--clay-low-bg);
+  padding: var(--clay-space-xs) var(--clay-space-sm);
+  border-radius: var(--clay-radius-full);
+}
+
+.claymorphism-mode .live-dot::before {
+  background: var(--clay-low);
+  box-shadow: 0 0 8px var(--clay-low);
+  border: none;
+}
+
+/* Graph Section - Enhanced 3D shadows, reduced chin */
+.claymorphism-mode #graph-section {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-xl);
+  box-shadow: var(--clay-shadow-lg);
+  padding: var(--clay-space-lg) var(--clay-space-lg) var(--clay-space-md) var(--clay-space-lg);
+  margin: var(--clay-space-sm) 0;
+}
+
+.claymorphism-mode #graph-container {
+  background: var(--clay-bg);
+  border-radius: var(--clay-radius-lg);
+  box-shadow: var(--clay-shadow-inset);
+  margin-top: var(--clay-space-sm);
+}
+
+/* Graph Nodes with Criticality Colors - Enhanced 3D */
+.claymorphism-mode .graph-node circle {
+  stroke-width: 4;
+  transition: all 0.3s ease;
+}
+
+.claymorphism-mode .graph-node text {
+  font-family: var(--clay-font-display);
+  font-weight: 700;
+  font-size: 12px;
+  fill: var(--clay-text);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Graph node status colors with enhanced glow */
+.claymorphism-mode .graph-node[data-status="low"] circle {
+  fill: var(--clay-low-bg);
+  stroke: var(--clay-low);
+  filter: drop-shadow(0 4px 8px rgba(76, 175, 80, 0.4)) drop-shadow(0 2px 4px rgba(76, 175, 80, 0.2));
+}
+
+.claymorphism-mode .graph-node[data-status="low"] text {
+  fill: var(--clay-low);
+}
+
+.claymorphism-mode .graph-node[data-status="medium"] circle {
+  fill: var(--clay-medium-bg);
+  stroke: var(--clay-medium);
+  filter: drop-shadow(0 4px 8px rgba(255, 152, 0, 0.4)) drop-shadow(0 2px 4px rgba(255, 152, 0, 0.2));
+}
+
+.claymorphism-mode .graph-node[data-status="medium"] text {
+  fill: var(--clay-medium);
+}
+
+.claymorphism-mode .graph-node[data-status="high"] circle {
+  fill: var(--clay-high-bg);
+  stroke: var(--clay-high);
+  filter: drop-shadow(0 4px 12px rgba(229, 57, 53, 0.5)) drop-shadow(0 2px 6px rgba(229, 57, 53, 0.3));
+}
+
+.claymorphism-mode .graph-node[data-status="high"] text {
+  fill: var(--clay-high);
+}
+
+.claymorphism-mode .graph-node[data-status="critical"] circle {
+  fill: var(--clay-critical-bg);
+  stroke: var(--clay-critical);
+  stroke-width: 5;
+  filter: drop-shadow(0 4px 16px rgba(156, 39, 176, 0.6)) drop-shadow(0 2px 8px rgba(156, 39, 176, 0.4));
+}
+
+.claymorphism-mode .graph-node[data-status="critical"] text {
+  fill: var(--clay-critical);
+  font-weight: 700;
+}
+
+.claymorphism-mode .graph-link {
+  stroke: var(--clay-gray-400);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+.claymorphism-mode .graph-link:hover {
+  opacity: 1;
+}
+
+/* Map Section - Enhanced 3D shadows, reduced chin */
+.claymorphism-mode #map-section {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-xl);
+  box-shadow: var(--clay-shadow-lg);
+  padding: var(--clay-space-lg) var(--clay-space-lg) var(--clay-space-md) var(--clay-space-lg);
+  margin: var(--clay-space-sm) 0;
+}
+
+.claymorphism-mode #map-container {
+  background: var(--clay-bg);
+  border-radius: var(--clay-radius-lg);
+  box-shadow: var(--clay-shadow-inset);
+  margin-top: var(--clay-space-sm);
+}
+
+/* Chat Widget - Clay effect */
+.claymorphism-mode #chat-btn {
+  background: linear-gradient(145deg, var(--clay-accent) 0%, var(--clay-purple) 100%);
+  color: var(--clay-text-inverse);
+  border: none;
+  border-radius: var(--clay-radius-full);
+  box-shadow: var(--clay-shadow);
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+}
+
+.claymorphism-mode #chat-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--clay-shadow-lg);
+}
+
+.claymorphism-mode #chat-panel {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-xl);
+  box-shadow: var(--clay-shadow-lg);
+}
+
+.claymorphism-mode .msg.user {
+  background: linear-gradient(145deg, var(--clay-accent) 0%, var(--clay-purple) 100%);
+  color: var(--clay-text-inverse);
+  border: none;
+  border-radius: var(--clay-radius-lg);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+}
+
+.claymorphism-mode .msg.assistant {
+  background: var(--clay-surface);
+  border: none;
+  border-radius: var(--clay-radius-lg);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  color: var(--clay-text);
+  box-shadow: var(--clay-shadow-sm);
+}
+
+.claymorphism-mode #chat-input {
+  background: var(--clay-bg);
+  border: none;
+  border-radius: var(--clay-radius-md);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  box-shadow: var(--clay-shadow-inset);
+  color: var(--clay-text);
+}
+
+.claymorphism-mode #chat-send {
+  background: linear-gradient(145deg, var(--clay-accent) 0%, var(--clay-purple) 100%);
+  color: var(--clay-text-inverse);
+  border: none;
+  border-radius: var(--clay-radius-md);
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Simulator Console */
+.claymorphism-mode .sim-console {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-md);
+  padding: var(--clay-space-md);
+  box-shadow: var(--clay-shadow-sm);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+}
+
+.claymorphism-mode .sim-console select {
+  background: var(--clay-bg);
+  border: none;
+  border-radius: var(--clay-radius-sm);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  color: var(--clay-text);
+  box-shadow: var(--clay-shadow-inset);
+}
+
+.claymorphism-mode .sim-console button {
+  background: linear-gradient(145deg, var(--clay-accent) 0%, var(--clay-purple) 100%);
+  color: var(--clay-text-inverse);
+  border: none;
+  border-radius: var(--clay-radius-sm);
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Auth Screen */
+.claymorphism-mode .auth-container {
+  background: var(--clay-bg);
+}
+
+.claymorphism-mode .auth-card {
+  background: var(--clay-surface);
+  border-radius: var(--clay-radius-xl);
+  box-shadow: var(--clay-shadow-lg);
+}
+
+.claymorphism-mode .google-login-btn {
+  background: var(--clay-surface);
+  color: var(--clay-text);
+  border: none;
+  border-radius: var(--clay-radius-md);
+  font-family: var(--clay-font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--clay-shadow);
+}
+
+.claymorphism-mode .google-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--clay-shadow-hover);
+}
+
+/* Status Bar */
+.claymorphism-mode #status-bar {
+  background: var(--clay-surface);
+  box-shadow: var(--clay-shadow-sm);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  padding: var(--clay-space-sm);
+  border-radius: 0;
+}
+
+.claymorphism-mode #refresh-toggle {
+  background: var(--clay-surface);
+  color: var(--clay-text);
+  border: none;
+  border-radius: var(--clay-radius-sm);
+  font-family: var(--clay-font-mono);
+  font-weight: 500;
+  box-shadow: var(--clay-shadow-sm);
+}
+
+.claymorphism-mode #refresh-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--clay-shadow);
+}
+
+/* ==========================================
+   ACCESSIBILITY & HIGH CONTRAST
+   ========================================== */
+
+.claymorphism-mode *:focus {
+  outline: none;
+  box-shadow: var(--clay-shadow), 0 0 0 4px var(--clay-info);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .claymorphism-mode * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

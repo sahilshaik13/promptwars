@@ -9,17 +9,31 @@ import { MapSection } from './components/MapSection';
 import { ChatWidget } from './components/ChatWidget';
 import { FloorplansGallery } from './components/FloorplansGallery';
 import { SimulatorConsole } from './components/SimulatorConsole';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { useVenueStream } from './hooks/useVenueStream';
 
 /**
- * SmartVenue AI - Production Dashboard Root Component.
- * Orchestrates the venue digital twin with real-time stream processing
- * and ML-driven spatial intelligence.
+ * SmartVenue AI - Claymorphism Design
+ * Modern, friendly interface with soft shadows and colorful status indicators
  */
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Register Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('SW registered:', registration);
+        })
+        .catch((error) => {
+          console.error('SW registration failed:', error);
+        });
+    }
+  }, []);
 
   // Authenticated initialization
   useEffect(() => {
@@ -61,85 +75,141 @@ function App() {
     console.log(`Focusing zone: ${zoneName} (${status})`);
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="claymorphism-mode">
+        <div className="auth-container">
+          <div className="auth-card clay-card">
+            <div className="clay-title" role="status" aria-live="polite">Loading...</div>
+            <div className="clay-text" aria-hidden="true">Initializing SmartVenue AI...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!session) {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-logo">Smart<span>Venue</span> AI</div>
-          <div className="auth-title">Production Venue Intelligence Platform</div>
-          <p className="auth-subtitle">
-            Predict crowd flow, manage wait times, and interact with venue digital twins using Gemini Spatial Intelligence.
-          </p>
-          <button className="google-login-btn" onClick={handleLogin}>
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="google-icon" />
-            Sign in with Google
-          </button>
-          <p className="auth-footer">
-            &copy; 2026 HITEX Exhibition Center &bull; Powered by Google Cloud
-          </p>
+      <div className="claymorphism-mode">
+        <div className="auth-container">
+          <div className="auth-card clay-card" role="main" aria-labelledby="auth-title">
+            <h1 id="auth-title" className="clay-title">SmartVenue AI</h1>
+            <p className="clay-subtitle" aria-describedby="auth-subtitle">Venue Intelligence Platform</p>
+            <p id="auth-subtitle" className="clay-text clay-mb-lg">
+              Predict crowd flow, manage wait times, and interact with venue digital twins using Gemini Spatial Intelligence.
+            </p>
+            <button 
+              className="clay-button primary clay-mb-md" 
+              onClick={handleLogin}
+              aria-label="Sign in to access SmartVenue AI"
+            >
+              Get Started
+            </button>
+            <div className="clay-status" role="status" aria-label="Powered by">
+              Powered by Gemini Spatial Intelligence
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      <a href="#main-content" className="skip-link">Skip to main content</a>
+    <ErrorBoundary>
+      <div className="claymorphism-mode">
+        <a href="#main-content" className="skip-link">Skip to main content</a>
 
-      <header role="banner">
-        <div className="logo">Smart<span>Venue</span> AI</div>
-        
-        <div className="header-meta">
-          <SimulatorConsole 
-            sessionToken={session.access_token} 
-            onRefresh={() => setRefreshTrigger(Date.now())} 
-          />
+        <header role="banner" className="clay-header" aria-label="Main navigation">
+          <h2 className="clay-logo" aria-label="SmartVenue AI">
+            Smart<span>Venue</span> AI
+          </h2>
           
-          <div className="user-profile" title={session.user.email}>
-            <img 
-              src={session.user.user_metadata.avatar_url} 
-              alt={session.user.email} 
-              className="user-avatar" 
+          <nav className="header-meta clay-nav" role="navigation" aria-label="User controls">
+            <ErrorBoundary>
+              <SimulatorConsole 
+                sessionToken={session.access_token} 
+                onRefresh={() => setRefreshTrigger(Date.now())} 
+              />
+            </ErrorBoundary>
+            
+            <div className="user-profile" title={`Logged in as ${session.user.email}`}>
+              <img 
+                src={session.user.user_metadata.avatar_url} 
+                alt={`${session.user.email}'s profile picture`}
+                className="user-avatar"
+                loading="lazy"
+                width="32"
+                height="32"
+              />
+              <button 
+                className="btn-logout" 
+                onClick={handleLogout}
+                aria-label="Log out of SmartVenue AI"
+              >
+                Log out
+              </button>
+            </div>
+            
+            <span 
+              className="match-phase clay-nav-item" 
+              id="match-phase" 
+              role="status" 
+              aria-live="polite"
+              aria-label={`Current event phase: ${snapshot ? snapshot.match_phase : 'loading'}`}
+            >
+              {snapshot ? snapshot.match_phase.toUpperCase() : 'LOADING…'}
+            </span>
+            <span 
+              className={`live-dot ${wsConnected ? 'active' : ''} clay-status live`}
+              role="status"
+              aria-live="polite"
+              aria-label={wsConnected ? 'Live data stream active' : 'Data stream syncing'}
+            >
+              {wsConnected ? 'LIVE' : 'SYNCING…'}
+            </span>
+          </nav>
+        </header>
+
+        <main id="main-content" role="main" aria-label="Venue intelligence dashboard">
+          <ErrorBoundary>
+            <HeatmapSection 
+              snapshot={snapshot} 
+              onZoneClick={handleZoneClick} 
             />
-            <button className="btn-logout" onClick={handleLogout}>Log out</button>
-          </div>
-          
-          <span className="match-phase" id="match-phase" aria-live="polite">
-            {snapshot ? snapshot.match_phase.toUpperCase() : 'LOADING…'}
-          </span>
-          <span className={`live-dot ${wsConnected ? 'active' : ''}`} aria-label="Live data status">
-            {wsConnected ? 'LIVE' : 'SYNCING…'}
-          </span>
-        </div>
-      </header>
+          </ErrorBoundary>
 
-      <main id="main-content" role="main">
-        <HeatmapSection 
-          snapshot={snapshot} 
-          onZoneClick={handleZoneClick} 
-        />
-        <WaitTimesSection 
-          zones={snapshot ? snapshot.zones : []} 
-        />
-        <GraphSection 
-          onZoneClick={handleZoneClick} 
-          refreshTrigger={refreshTrigger} 
-          sessionToken={session.access_token} 
-        />
-        <MapSection 
-          zones={snapshot ? snapshot.zones : []} 
-          particles={snapshot?.particles} 
-        />
-        <FloorplansGallery />
-      </main>
+          <ErrorBoundary>
+            <WaitTimesSection 
+              zones={snapshot ? snapshot.zones : []} 
+            />
+          </ErrorBoundary>
 
-      <ChatWidget sessionToken={session.access_token} />
-    </>
+          <ErrorBoundary>
+            <GraphSection 
+              onZoneClick={handleZoneClick} 
+              refreshTrigger={refreshTrigger} 
+              sessionToken={session.access_token} 
+            />
+          </ErrorBoundary>
+
+          <ErrorBoundary>
+            <MapSection 
+              zones={snapshot ? snapshot.zones : []} 
+              particles={snapshot?.particles} 
+            />
+          </ErrorBoundary>
+
+          <ErrorBoundary>
+            <FloorplansGallery />
+          </ErrorBoundary>
+        </main>
+
+        <ErrorBoundary>
+          <ChatWidget sessionToken={session.access_token} />
+        </ErrorBoundary>
+      </div>
+    </ErrorBoundary>
   );
 }
-
-export default App;
 
 export default App;

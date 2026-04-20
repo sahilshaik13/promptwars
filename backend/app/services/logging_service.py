@@ -12,22 +12,28 @@ def setup_cloud_logging():
     Uses structured JSON logs for better production observability.
     """
     if settings.environment == "production":
-        # 1. Initialize GCP Logging Client
-        client = gcp_logging.Client()
-        client.setup_logging()
-        
-        # 2. Configure structlog to play nice with GCP log severity
-        structlog.configure(
-            processors=[
-                structlog.processors.add_log_level,
-                structlog.processors.dict_tracebacks,
-                structlog.processors.JSONRenderer()
-            ],
-            logger_factory=structlog.stdlib.LoggerFactory(),
-            wrapper_class=structlog.stdlib.BoundLogger,
-            cache_logger_on_first_use=True,
-        )
-        return True
+        try:
+            # 1. Initialize GCP Logging Client
+            client = gcp_logging.Client()
+            client.setup_logging()
+            
+            # 2. Configure structlog to play nice with GCP log severity
+            structlog.configure(
+                processors=[
+                    structlog.processors.add_log_level,
+                    structlog.processors.dict_tracebacks,
+                    structlog.processors.JSONRenderer()
+                ],
+                logger_factory=structlog.stdlib.LoggerFactory(),
+                wrapper_class=structlog.stdlib.BoundLogger,
+                cache_logger_on_first_use=True,
+            )
+            return True
+        except Exception as e:
+            # Fallback to standard logging if GCP client fails (e.g. auth issues)
+            logging.basicConfig(level=logging.INFO)
+            print(f"Failed to initialize GCP logging: {e}")
+            return False
     return False
 
 # Initialize logging on import

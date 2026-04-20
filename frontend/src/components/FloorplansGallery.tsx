@@ -13,9 +13,13 @@ const FLOORS = [
 
 export const FloorplansGallery: React.FC = () => {
   return (
-    <section className="card" style={{ gridColumn: '1 / -1', marginTop: '24px', background: 'var(--surface)' }}>
+    <section 
+      className="card" 
+      aria-labelledby="floorplans-title"
+      style={{ gridColumn: '1 / -1', marginTop: '24px', background: 'var(--surface)' }}
+    >
       <div className="card-header" style={{ paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-        <h2 className="card-title" style={{ fontSize: '1.2rem', color: 'var(--text)' }}>
+        <h2 id="floorplans-title" className="card-title" style={{ fontSize: '1.2rem', color: 'var(--text)' }}>
           🏛️ Venue Blueprints Gallery
           <span style={{ fontSize: '0.75rem', fontWeight: 400, marginLeft: '12px', color: 'var(--text-muted)' }}>
             High-Resolution Exhibition Schematics
